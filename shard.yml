@@ -1,0 +1,17 @@
+name: tileworld
+version: 0.1.0
+
+authors:
+  - Jos Dehaes <jos.dehaes@gmail.com>
+
+targets:
+  tileworld:
+    main: src/tileworld.cr
+
+crystal: 1.0.0
+
+license: MIT
+
+dependencies:
+  crystalline:
+    github: jtomschroeder/crystalline

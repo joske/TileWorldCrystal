@@ -1,0 +1,6 @@
+version: 2.0
+shards:
+  crystalline:
+    git: https://github.com/jtomschroeder/crystalline.git
+    version: 0.1.0+git.commit.de6c412a76d750c2ba3d55172fa5975799ae5699
+
