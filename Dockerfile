@@ -1,14 +1,16 @@
-FROM jhass/crystal:0.35.0-build
+FROM crystallang/crystal
 
-RUN sudo apt update
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt install -y libgtk-3-dev
+RUN apt update
+
+RUN apt install -y libgtk-3-dev
 
 WORKDIR /usr/src/app
 
 COPY shard.yml /usr/src/app/
 
-RUN shard install
+RUN shards install --ignore-crystal-version
 
 COPY . /usr/src/app/
 
