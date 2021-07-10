@@ -1,0 +1,6 @@
+.gitignore
+.dockerignore
+.travis.yaml
+spec/
+Dockerfile
+.DS_Store
