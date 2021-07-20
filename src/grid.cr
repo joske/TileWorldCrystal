@@ -52,6 +52,10 @@ class Location
     return @col << 8 & @row.hash
   end
 
+  def clone()
+    Location.new(@col, @row)
+  end
+
   def distance(other)
     return (self.col - other.col).abs + (self.row - other.row).abs
   end

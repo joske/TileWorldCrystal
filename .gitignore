@@ -4,3 +4,5 @@
 /.shards/
 *.dwarf
 .DS_Store
+tileworld
+.devcontainer

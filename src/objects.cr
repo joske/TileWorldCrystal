@@ -1,4 +1,4 @@
-require "./path"
+require "./astar"
 
 module State
   IDLE = 0
@@ -47,14 +47,14 @@ class Agent < GridObject
     @tile = nil.as(Tile?)
     @hole = nil.as(Hole?)
     @score = 0
-    @path = [] of Int32
+    @path = [] of Location
     @hasTile = false
   end
 
   # updates the location of this agent
-  def nextMove(dir)
-    puts "move #{dir}"
-    @location = @location.nextLocation(dir)
+  def nextMove(loc)
+    puts "move #{loc}"
+    @location = loc
   end
 
   def location()
@@ -102,7 +102,8 @@ class Agent < GridObject
       return
     end
     # check if our tile is still there
-    if !@grid.object(@tile.as(Tile).location).as(GridObject).equal?(@tile.as(GridObject))
+    o = @grid.object(@tile.as(Tile).location)
+    if o === nil || !o.as(GridObject).equal?(@tile)
       puts "#{self} our tile is gone"
       @state = State::IDLE
       return
@@ -114,16 +115,15 @@ class Agent < GridObject
       @tile = potentialTile
     end
     if @path.empty?
-      @path = shortestPath(@grid, @location, @tile.as(Tile).location)
+      @path = astar(@grid, @location, @tile.as(Tile).location)
       puts "#{self} path: #{@path}"
     else
-      dir = @path.shift
-      nextLoc = @location.nextLocation(dir)
+      nextLoc = @path.shift
       if @grid.validLocation(nextLoc) || nextLoc.equal?(@tile.as(Tile).location)
-        nextMove(dir)
+        nextMove(nextLoc)
       else
         # hmm, something in the way suddenly
-        @path = shortestPath(@grid, @location, @tile.as(Tile).location)
+        @path = astar(@grid, @location, @tile.as(Tile).location)
       end
     end
   end
@@ -141,7 +141,8 @@ class Agent < GridObject
       return
     end
     # check if our hole is still there
-    if !@grid.object(@hole.as(Hole).location).as(GridObject).equal?(@hole)
+    o = @grid.object(@hole.as(Hole).location)
+    if o === nil || !o.as(GridObject).equal?(@hole)
       puts "#{self} our hole is gone"
       @hole = @grid.getClosestHole(@location)
       return
@@ -153,15 +154,14 @@ class Agent < GridObject
       @hole = potentialHole
     end
     if @path.empty?
-      @path = shortestPath(@grid, self.location, @hole.as(Hole).location)
+      @path = astar(@grid, self.location, @hole.as(Hole).location)
       puts "#{self} path: #{@path}"
     else
-      dir = @path.shift
-      nextLoc = @location.nextLocation(dir)
-      if @grid.validLocation(@location.nextLocation(dir)) || nextLoc.equal?(@hole.as(Hole).location)
-        nextMove(dir)
+      nextLoc = @path.shift
+      if @grid.validLocation(nextLoc) || nextLoc.equal?(@hole.as(Hole).location)
+        nextMove(nextLoc)
       else
-        @path = shortestPath(@grid, @location, @hole.as(Hole).location)
+        @path = astar(@grid, @location, @hole.as(Hole).location)
       end
     end
   end

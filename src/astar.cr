@@ -1,45 +1,42 @@
-require 'rubygems'
-require 'algorithms'
-require 'set'
+require "crystalline"
+
+include Crystalline
+include Containers
+include Algorithms
 
 # node holder
 class Node
-  def initialize(l, p, s)
+  property :location, :path, :score
+  def initialize(l : Location, p : Array(Location), s : Int32)
     @location = l
-    @parent = p
+    @path = p
     @score = s
   end
-  def location
-    @location
-  end
-  def score
-    @score
-  end
-  def parent
-    @parent
-  end
-  def <=>(other)
+  def <=>(other : Node)
     @score <=> other.score
   end
 
+  def ===(other : Node)
+    @location === other.location
+  end
+
   def to_s
-    "Node(@#{@location}, parent=#{@parent}, score=#{@score})"
+    "Node(@#{@location}, path=#{@path}, score=#{@score})"
   end
 end
 
 def astar(grid, from, to)
-  open_list = Containers::PriorityQueue.new { |x, y|
-    (y <=> x) == 1
-  }
-  closed_list = Set.new
-  fromNode = Node.new(from, nil, 0)
+  nodecmp = -> (x: Int32, y: Int32) { (y <=> x) == 1 }
+  open_list = Containers::PriorityQueue(Node).new(nodecmp)
+  closed_list = Set(Node).new
+  fromNode = Node.new(from, [] of Location, 0)
   open_list.push(fromNode, 0)
   until open_list.empty?
-    current = open_list.pop
+    current = open_list.pop.as(Node)
     puts "current=#{current}"
     if current.location == to
       # arrived
-      return makePath(current, fromNode)
+      return current.path
     end
     closed_list.add(current)
     checkNeighbor(grid, open_list, closed_list, current, Direction::UP, from, to)
@@ -47,6 +44,7 @@ def astar(grid, from, to)
     checkNeighbor(grid, open_list, closed_list, current, Direction::LEFT, from, to)
     checkNeighbor(grid, open_list, closed_list, current, Direction::RIGHT, from, to)
   end
+  [] of Location
 end
 
 def checkNeighbor(grid, open_list, closed_list, current, direction, from, to)
@@ -55,7 +53,9 @@ def checkNeighbor(grid, open_list, closed_list, current, direction, from, to)
   if grid.validMove(current.location, direction) || nextLocation.equal?(to)
     h = nextLocation.distance(to)
     g = current.location.distance(from) + 1
-    child = Node.new(nextLocation, current, g + h)
+    new_path = current.path.clone 
+    new_path.push(nextLocation)
+    child = Node.new(nextLocation, new_path, g + h)
     lowerChild = closed_list.select() { |node|
       node.location.equal?(child.location) && node.score < child.score
     }
@@ -65,18 +65,4 @@ def checkNeighbor(grid, open_list, closed_list, current, direction, from, to)
     end
     
   end
-end
-
-def makePath(endNode, fromNode)
-    puts "makePath #{endNode} <- #{fromNode}"
-  directions = []
-  current = endNode
-  parent = endNode.parent
-  until current.location.equal?(fromNode.location)
-    dir = parent.location.getDirection(current.location)
-    directions.unshift(dir)
-    current = parent
-    parent = current.parent
-  end
-  return directions
 end
