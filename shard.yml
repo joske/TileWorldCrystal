@@ -15,3 +15,5 @@ license: MIT
 dependencies:
   crystalline:
     github: jtomschroeder/crystalline
+  gobject:
+    github: jhass/crystal-gobject
